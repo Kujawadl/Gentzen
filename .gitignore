@@ -1,6 +1,7 @@
 node_modules
 wiki
 semantic
+semantic.json
 .vscode
 dist/*
 !dist/vendor
