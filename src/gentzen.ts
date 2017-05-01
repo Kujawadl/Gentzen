@@ -189,9 +189,7 @@ class Parser {
  * It is represented more or less as a binary tree structure, with each Proposition (node) containing an operator (value) and left and right operands (children).
  */
 export class Proposition {
-    public constructor(operand1: string | Proposition, operator?: string, operand2?: string | Proposition) {
-        console.debug("Proposition constructor: \n\toperand1 = '" + operand1 + "'\n\toperator = '" + operator + "'\n\toperand2 = '" + operand2 + "'\n");
-        
+    public constructor(operand1: string | Proposition, operator?: string, operand2?: string | Proposition) {       
         if (operand1 === undefined || operand1 === null) {
             throw Error("Syntax error.")
         } else if (typeof(operand1) === "string" && (operator === undefined || operator === null)) {
@@ -270,9 +268,6 @@ export class Proposition {
 
 export class Sequent {
     public constructor(assumptions?: Array<Proposition>, conclusions?: Array<Proposition>) {
-        console.debug("Sequent constructor:");
-        console.debug(assumptions);
-        console.debug(conclusions);
         this.assumptions = assumptions || new Array<Proposition>();
         this.conclusions = conclusions || new Array<Proposition>();
     }
