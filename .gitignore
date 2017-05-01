@@ -1,0 +1,4 @@
+node_modules
+semantic/*
+!semantic/dist
+semantic.json
