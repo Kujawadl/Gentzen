@@ -1,0 +1,7 @@
+node_modules
+wiki
+semantic
+.vscode
+dist/*
+!dist/vendor
+!dist/Treant.js
