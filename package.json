@@ -17,13 +17,15 @@
   "homepage": "https://github.com/Kujawadl/Gentzen/wiki",
   "description": "Automated Propositional Logic Proofs",
   "dependencies": {
-    "gulp": "^3.9.1",
     "semantic-ui": "^2.2.10",
     "typescript": "^2.3.2",
     "typescript-collections": "^1.2.3"
   },
   "devDependencies": {
+    "gulp": "^3.9.1",
     "gulp-util": "^3.0.8",
-    "watchify": "^3.9.0"
+    "watchify": "^3.9.0",
+    "vinyl-source-stream": "^1.1.0",
+    "tsify": "^3.0.1"
   }
 }
