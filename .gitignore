@@ -6,3 +6,4 @@ semantic.json
 dist/*
 !dist/vendor
 !dist/Treant.js
+!dist/Treant.css
