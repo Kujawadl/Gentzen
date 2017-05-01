@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "noImplicitAny": true,
+    "sourceMap": false,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "moduleResolution": "node"
+  },
+  "exclude": [
+    "node_modules",
+    "wiki"
+  ]
+}
