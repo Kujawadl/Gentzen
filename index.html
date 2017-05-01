@@ -40,6 +40,7 @@
                         <input type="text" id="txtProposition" class="proposition" placeholder="e.g., (P -> Q) -> (!Q -> !P)">
                         <button id="btnParse" class="ui button">Parse</button>
                     </div>
+                    <a id="btnPermalink" style="display: none">Permalink to this query</a>
                 </div>
             </div>
             <div class="ui bottom attached segment">
@@ -120,6 +121,17 @@
                 <p>For more information, check the <a href="https://github.com/Kujawadl/Gentzen/wiki" target="_blank">Gentzen wiki</a>.</p>
             </div>
         </div>
+        <div id="mdlPermalink" class="ui small modal">
+            <div class="ui header">Permalink</div>
+            <div class="ui content">
+                <form class="ui form">
+                    <div class="field">
+                        <label>Use this link to return to this query at a later time:</label>
+                        <input type="text" id="txtPermalink" readonly>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         <script>
             var proposition;
@@ -145,7 +157,14 @@
             // Proposition input
             $("#txtProposition").focus();
             $("#txtProposition").keypress(function(e){
-                if(e.keyCode==13) { $("#btnParse").click() };
+                if (e.keyCode==13) { $("#btnParse").click() };
+            });
+            $("#txtProposition").keyup(function(e) {
+                if (this.value != "") {
+                    $("#btnPermalink").show();
+                } else {
+                    $("#btnPermalink").hide();
+                }
             });
             
             // Help modals
@@ -157,6 +176,20 @@
             });
             $("#btnResultHelp").click(function() {
                 $("#mdlResultHelp").modal("show");
+            });
+            $("#btnPermalink").click(function() {
+                $("#txtPermalink").val([
+                    location.protocol, 
+                    "//", 
+                    location.host, 
+                    location.pathname, 
+                    "?p=" + encodeURIComponent($("#txtProposition").val())
+                ].join(""));
+                $("#mdlPermalink").modal("show");
+                $("#txtPermalink").focus();
+            });
+            $("#txtPermalink").focus(function() {
+                $(this).select();
             });
 
             // Parse button
@@ -175,7 +208,15 @@
                 }
             });
 
+            // Resize tree with window
             $(window).resize(drawTree);
+
+            // Get initial value from query string if available
+            var urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has("p")) {
+                $("#txtProposition").val(decodeURIComponent(urlParams.get("p")));
+                $("#btnParse").click();
+            }
         </script>
     </body>
 </html>
