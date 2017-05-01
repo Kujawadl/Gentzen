@@ -1,0 +1,180 @@
+<html>
+    <head>
+        <title>Gentzen</title>
+        <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+        <script src="semantic/dist/semantic.min.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="dist/Treant.css">
+        <script src="dist/vendor/raphael.js"></script>
+        <script src="dist/Treant.js"></script>
+
+        <script src="dist/bundle.js"></script>
+
+        <style>
+            code, kbd, pre, samp, .proposition {
+                font-family: Verdana, monospace !important;
+                font-size: 0.8em !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="ui container">
+            <div class="ui header">
+                <h1>Automated Propositional Logic Proofs using Gentzen Deduction Trees</h1>
+                <div class="sub header">
+                    by Dylan Jager-Kujawa
+                </div>
+            </div>
+            <div class="ui top attached segment">
+                <div class="ui header">
+                    Enter an Expression
+                    <div class="ui right floated icon image">
+                        <a id="btnInputHelp" class="ui right circular icon button">
+                            <i class="help icon"></i>
+                        </a>    
+                    </div>
+                </div>
+                <div class="ui form">
+                    <div class="ui fluid action input">
+                        <input type="text" id="txtProposition" class="proposition" placeholder="e.g., (P -> Q) -> (!Q -> !P)">
+                        <button id="btnParse" class="ui button">Parse</button>
+                    </div>
+                </div>
+            </div>
+            <div class="ui bottom attached segment">
+                <div class="header">
+                    <h4>Parsed, Fully-Parenthesized Expression</h4>
+                </div>
+                <div class="ui message">
+                    <code id="codeParsed">
+                        e.g., ((P -> Q) -> (!Q -> !P))
+                    </code>
+                </div>
+            </div>
+
+            <div class="ui raised segment">
+                <div class="ui header">
+                    Deduction Tree
+                    <div id="result" class="sub header">
+                        <a id="btnResultHelp">What does this mean?</a>
+                    </div>
+                </div>
+                <div class="ui center aligned content">
+                    <div id="tree-simple"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="mdlInputHelp" class="ui modal">
+            <div class="ui three column stackable divided padded grid">
+                <div class="row">
+                    <div class="column">
+                        <div class="ui header">
+                            Propositional Symbols
+                        </div>
+                        <div class="ui content">
+                            <p>Propositional symbols must begin with a letter, and can be followed by letters or numbers. For example, "Rainy", "Car1", etc.</p>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="ui header">
+                            Operators
+                        </div>
+                        <div class="ui content">
+                            <p>The following operators are recognized:</p>
+                            <div class="ui list">
+                                <div class="item"><i class="right triangle icon"></i> ! (not)</div>
+                                <div class="item"><i class="right triangle icon"></i> &amp;&amp; (and)</div>
+                                <div class="item"><i class="right triangle icon"></i> || (or)</div>
+                                <div class="item"><i class="right triangle icon"></i> -> (implication)</div>
+                            </div>
+                            <p>Parentheses may be used to group sub-propositions, but make sure they are balanced.</p>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="ui header">
+                            Precedence
+                        </div>
+                        <div class="ui content">
+                            <p>Operator precedence is shown in the list of operators, with higher-precedence operators appearing higher in the list.</p>
+                            <p>Parentheses take precedence over all operators.</p>
+                            <p>If you're unsure if your syntax is correct, verify the parsed expression below.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="mdlResultHelp" class="ui modal">
+            <div class="ui header">
+                Interpreting the Results
+            </div>
+            <div class="ui content">
+                <p>Results are displayed in a tree, with each node representing a sequent. A sequent is an <b>axiom</b> if its assumptions and conclusions share a common proposition. A node is <b>finished</b> if it is an axiom, or if its assumptions and conclusions consist of only atomic symbols.</p>
+                <p>All unfinished nodes are <em>expanded</em>, that is to say, inference rules are applied to them to manipulate the propositions between the assumptions and conclusions.</p>
+                <p>When all nodes in the tree are finished, the deduction tree is complete, and is displayed graphically below. <b>Axioms are highlighted in green. Finished non-axioms are highlighted in red.</b></p>
+                <hr />
+                <p>If, once the tree is finished, all <em>leaves</em> of the tree are axioms, then the original proposition is a <b>tautology</b> (i.e. it is always true). If any leaves are not axioms, the original proposition is not a tautology, and any non-axiom leaves contain the counter-examples to disprove it.</p>
+                <hr />
+                <p><b>TLDR:</b> If all your tree's leaves are <b style="color: green;">green</b>, the proposition is true. If any leaves are <b style="color: red">red</b>, it is false, and the red leaves are the counterexamples.</p>
+            </div>
+        </div>
+
+        <script>
+            var proposition;
+            var gentzenTree;
+            var chart;
+
+            function drawTree() {
+                if (gentzenTree !== undefined && gentzenTree !== null) {
+                    chart = new Treant({
+                        chart: {
+                            container: "#tree-simple",
+                            connectors: {
+                                style: {
+                                    "arrow-end": "classic-wide-long"
+                                }
+                            }
+                        },
+                        nodeStructure: gentzenTree.root
+                    }, undefined, $);
+                }
+            };
+
+            // Proposition input
+            $("#txtProposition").focus();
+            $("#txtProposition").keypress(function(e){
+                if(e.keyCode==13) { $("#btnParse").click() };
+            });
+            
+            // Help modals
+            $(".ui.modal").modal({
+                transition: "scale"
+            });
+            $("#btnInputHelp").click(function() {
+                $("#mdlInputHelp").modal("show");
+            });
+            $("#btnResultHelp").click(function() {
+                $("#mdlResultHelp").modal("show");
+            });
+
+            // Parse button
+            $("#btnParse").click(function() {
+                proposition = undefined;
+                gentzenTree = undefined;
+                !chart || chart.destroy();
+                try {
+                    proposition = new Gentzen.Proposition($("#txtProposition").val());
+                    $("#codeParsed").html(proposition.toString()).parent().removeClass("error");
+                    gentzenTree = new Gentzen.GentzenTree(proposition);
+                    drawTree();                    
+                } catch (ex) {
+                    console.error(ex);
+                    $("#codeParsed").html(ex.message).parent().addClass("error");
+                }
+            });
+
+            $(window).resize(drawTree);
+        </script>
+    </body>
+</html>
