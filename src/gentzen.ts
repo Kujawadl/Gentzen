@@ -489,7 +489,7 @@ export module GentzenTree {
                 let prem1: Sequent = new Sequent(seq.assumptions.slice(), []);
                 let prem2: Sequent = new Sequent(seq.assumptions.slice(), []);
                 seq.conclusions.forEach(function(prop, i) {
-                    if (i !== index) {
+                    if (i === index) {
                         prem1.conclusions.push((typeof(prop.operand1) === "string" ? new Proposition(prop.operand1) : prop.operand1));
                         prem2.conclusions.push((typeof(prop.operand2) === "string" ? new Proposition(prop.operand2) : prop.operand2));
                     } else {
